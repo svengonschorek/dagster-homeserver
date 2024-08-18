@@ -7,8 +7,9 @@ RUN pip install \
     dagster \
     dagster-postgres \
     dagster-docker \
-    dagster-dbt \
-    dbt-clickhouse
+    dagster-airbyte \
+    dbt-clickhouse \  
+    dagster-dbt
 
 # Add repository code
 
@@ -20,4 +21,4 @@ EXPOSE 4000
 
 # CMD allows this to be overridden from run launchers or executors that want
 # to run other commands against your repository
-CMD ["dagster", "api", "grpc", "-h", "0.0.0.0", "-p", "4000", "-m", "definitions_dbt.definitions"]
+CMD ["dagster", "api", "grpc", "-h", "0.0.0.0", "-p", "4000", "-m", "definitions.definitions"]

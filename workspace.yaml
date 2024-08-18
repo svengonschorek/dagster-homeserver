@@ -1,6 +1,6 @@
 load_from:
   # Each entry here corresponds to a service in the docker-compose file that exposes user code.
   - grpc_server:
-      host: docker_dbt_code
+      host: docker_runner
       port: 4000
-      location_name: "dbt"
+      location_name: "analytics_dag"

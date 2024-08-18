@@ -16,26 +16,26 @@ services:
   # Multiple containers like this can be deployed separately - each just needs to run on
   # its own port, and have its own entry in the workspace.yaml file that's loaded by the
   # webserver.
-  docker_dbt_code:
+  docker_runner:
     build:
       context: .
-      dockerfile: ./Dockerfile_dbt
-    container_name: docker_dbt_code
+      dockerfile: ./Dockerfile_jobrunner
+    container_name: docker_dagster_jobrunner
     volumes:
       - type: bind
-        source: ./dags/definitions_dbt
-        target: /opt/dagster/app/definitions_dbt
+        source: ./dags/definitions
+        target: /opt/dagster/app/definitions
       - type: bind
         source: ../dbt-core
-        target: /opt/dagster/app/definitions_dbt/dbt-core
+        target: /opt/dagster/app/definitions/dbt-core
       - type: bind
         source: ./config/profiles.yml
-        target: /opt/dagster/app/definitions_dbt/dbt-core/profiles.yml
+        target: /opt/dagster/app/definitions/dbt-core/profiles.yml
     env_file : ./config/.env
-    image: docker_dbt_code_image
+    image: docker_jobrunner_image
     restart: always
     environment:
-      DAGSTER_CURRENT_IMAGE: "docker_dbt_code_image"
+      DAGSTER_CURRENT_IMAGE: "docker_jobrunner_image"
       DAGSTER_DBT_PARSE_PROJECT_ON_LOAD: 1
     networks:
       - docker_network
@@ -68,7 +68,7 @@ services:
       - docker_network
     depends_on:
       - docker_postgresql
-      - docker_dbt_code
+      - docker_runner
 
   # This service runs the dagster-daemon process, which is responsible for taking runs
   # off of the queue and launching them, as well as creating runs from schedules or sensors.
@@ -89,7 +89,7 @@ services:
       - docker_network
     depends_on:
       - docker_postgresql
-      - docker_dbt_code
+      - docker_runner
 
 networks:
   docker_network:

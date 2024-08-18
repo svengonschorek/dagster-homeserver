@@ -9,7 +9,8 @@ RUN pip install \
     dagster-webserver \
     dagster-postgres \
     dagster-docker \
-    dagster-dbt
+    dagster-dbt \
+    dagster-airbyte
 
 # Set $DAGSTER_HOME and copy dagster instance and workspace YAML there
 ENV DAGSTER_HOME=/opt/dagster/dagster_home/

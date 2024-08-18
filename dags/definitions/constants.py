@@ -1,8 +1,23 @@
 import os
 from pathlib import Path
 
+from dagster_airbyte import AirbyteResource
+
 from dagster_dbt import DbtCliResource
 
+# airbyte constants
+# ---------------------------------------------------
+airbyte_instance = AirbyteResource(
+    host=os.getenv("AIRBYTE_HOST"),
+    port=os.getenv("AIRBYTE_PORT"),
+    # If using basic auth
+    username=os.getenv("AIRBYTE_USERNAME"),
+    password=os.getenv("AIRBYTE_PASSWORD"),
+)
+
+
+# dbt constants
+# ---------------------------------------------------
 dbt_project_dir = Path(__file__).joinpath("..", "dbt-core").resolve()
 dbt = DbtCliResource(project_dir=os.fspath(dbt_project_dir))
 
