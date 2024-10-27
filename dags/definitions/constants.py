@@ -17,7 +17,7 @@ airbyte_resource = AirbyteResource(
 
 # dbt constants
 # ---------------------------------------------------
-dbt_project_dir = Path(__file__).joinpath("..", "dbt-core").resolve()
+dbt_project_dir = Path(__file__).joinpath("..", "dbt-homeserver").resolve()
 dbt_resource = DbtCliResource(project_dir=os.fspath(dbt_project_dir))
 
 # If DAGSTER_DBT_PARSE_PROJECT_ON_LOAD is set, a manifest will be created at run time.
