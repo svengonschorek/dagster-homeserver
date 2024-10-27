@@ -52,14 +52,14 @@ services:
       - -h
       - "0.0.0.0"
       - -p
-      - "3000"
+      - "3010"
       - -w
       - workspace.yaml
     container_name: docker_webserver
     expose:
-      - "3000"
+      - "3010"
     ports:
-      - "3000:3000"
+      - "3010:3010"
     env_file : ./config/.env
     volumes: # Make docker client accessible so we can terminate containers from the webserver
       - /var/run/docker.sock:/var/run/docker.sock
