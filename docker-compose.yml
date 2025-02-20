@@ -1,5 +1,3 @@
-version: "3.7"
-
 services:
   # This service runs the postgres DB used by dagster for run storage, schedule storage,
   # and event log storage.
@@ -8,7 +6,7 @@ services:
     container_name: docker_postgresql
     env_file : ./config/.env
     networks:
-      - docker_network
+      - homeserver_network
 
   # This service runs the gRPC server that loads your user code, in both dagster-webserver
   # and dagster-daemon. By setting DAGSTER_CURRENT_IMAGE to its own image, we tell the
@@ -38,7 +36,7 @@ services:
       DAGSTER_CURRENT_IMAGE: "docker_jobrunner_image"
       DAGSTER_DBT_PARSE_PROJECT_ON_LOAD: 1
     networks:
-      - docker_network
+      - homeserver_network
 
   # This service runs dagster-webserver, which loads your user code from the user code container.
   # Since our instance uses the QueuedRunCoordinator, any runs submitted from the webserver will be put on
@@ -64,11 +62,11 @@ services:
     volumes: # Make docker client accessible so we can terminate containers from the webserver
       - /var/run/docker.sock:/var/run/docker.sock
       - /tmp/io_manager_storage:/tmp/io_manager_storage
-    networks:
-      - docker_network
     depends_on:
       - docker_postgresql
       - docker_runner
+    networks:
+      - homeserver_network
 
   # This service runs the dagster-daemon process, which is responsible for taking runs
   # off of the queue and launching them, as well as creating runs from schedules or sensors.
@@ -85,13 +83,12 @@ services:
     volumes: # Make docker client accessible so we can launch containers using host docker
       - /var/run/docker.sock:/var/run/docker.sock
       - /tmp/io_manager_storage:/tmp/io_manager_storage
-    networks:
-      - docker_network
     depends_on:
       - docker_postgresql
       - docker_runner
+    networks:
+      - homeserver_network
 
 networks:
-  docker_network:
-    driver: bridge
-    name: docker_network
+  homeserver_network:
+    name: homeserver_network

@@ -1,4 +1,4 @@
-FROM python:3.12-bookworm
+FROM python:3.10-bullseye
 
 # Checkout and install dagster libraries needed to run the gRPC server
 # exposing your repository to dagster-webserver and dagster-daemon, and to load the DagsterInstance
@@ -8,7 +8,7 @@ RUN pip install \
     dagster-postgres \
     dagster-docker \
     dagster-airbyte \
-    dbt-clickhouse \  
+    dbt-clickhouse \
     dagster-dbt
 
 # Add repository code
