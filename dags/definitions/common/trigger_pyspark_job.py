@@ -12,7 +12,7 @@ def trigger_pyspark(file_path: str, args: str = None):
         "appResource": "",
         "sparkProperties": {
             "spark.master": "spark://spark-master:7077",
-            "spark.app.name": "Spark Test"
+            "spark.app.name": "Spark Job " + args
         },
         "clientSparkVersion": "",
         "mainClass": "org.apache.spark.deploy.SparkSubmit",
@@ -26,7 +26,7 @@ def trigger_pyspark(file_path: str, args: str = None):
     logger = get_dagster_logger()
 
     if response.status_code == 200:
-        logger.info("Spark job submitted successfully!")
+        logger.info(f"Spark job submitted successfully! --> {args}")
     else:
         logger.error(f"Failed to submit job. Status code: {response.status_code}")
         logger.error(response.text)
@@ -48,7 +48,7 @@ def trigger_pyspark(file_path: str, args: str = None):
         elif driver_state in ["RUNNING", "SUBMITTED"]:
             time.sleep(1)
         elif driver_state == "FINISHED":
-            logger.info("Spark job finished successfully!")
+            logger.info(f"Spark job finished successfully! --> {args}")
             return None
         else:
             logger.info(f"Unknown driver state: {driver_state}")

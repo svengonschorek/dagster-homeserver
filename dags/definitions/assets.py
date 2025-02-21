@@ -1,6 +1,6 @@
 from .common.trigger_pyspark_job import trigger_pyspark
 
-from dagster import AssetExecutionContext, ResourceDefinition, asset
+from dagster import AssetExecutionContext, ResourceDefinition, asset, AssetKey
 from dagster_dbt import DbtCliResource, dbt_assets, DagsterDbtTranslator
 from dagster_airbyte import load_assets_from_airbyte_instance
 
@@ -10,17 +10,24 @@ from .constants import dbt_manifest_path, airbyte_resource
 
 # define spark assets
 # ---------------------------------
-def create_dynamic_spark_assets(asset_names):
+def create_spark_assets(asset_names):
     assets = []
-    
-    for name in asset_names:
-        @asset(name=name, group_name="spark")
+    def make_asset(name):
+
+        @asset(
+            name=name,
+            key_prefix="spark",
+            group_name="spark",
+            deps=AssetKey(["airbyte", name])
+        )
         def generated_asset():
             spark_file_path = "/opt/spark/scripts/extract_load.py"
-            job_args = name
-            trigger_pyspark(spark_file_path, args=job_args)
+            trigger_pyspark(spark_file_path, args=name)
         
-        assets.append(generated_asset)
+        return generated_asset
+
+    for name in asset_names:
+        assets.append(make_asset(name))
     
     return assets
 
@@ -35,13 +42,17 @@ asset_names = [
     "s3_bybit_bottrades"
 ]
 
-spark_assets = create_dynamic_spark_assets(asset_names)
+spark_assets = create_spark_assets(asset_names)
 
 # define airbyte assets
 # ---------------------------------
+def connection_to_group(name: str) -> str:
+    return 'airbyte'
+
 airbyte_assets = load_assets_from_airbyte_instance(
     airbyte=airbyte_resource,
-    key_prefix = ["binance"],
+    key_prefix = ["airbyte"],
+    connection_to_group_fn=connection_to_group
 )
 
 # define dbt assets
