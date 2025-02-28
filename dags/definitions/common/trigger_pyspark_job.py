@@ -45,18 +45,18 @@ def trigger_pyspark(file_path: str, args: str = None) -> Optional[str]:
         
         if not submission_id:
             logger.error(f"No submission ID returned in response: {response.text}")
-            return None
+            raise Exception(f"PySpark job submission failed: No submission ID returned")
             
         logger.debug(f"Received submission ID: {submission_id}")
         
     except requests.exceptions.RequestException as e:
         logger.error(f"Failed to submit job. Error: {str(e)}")
         logger.error(f"Request details: URL={url}, Headers={headers}")
-        return None
+        raise Exception(f"Failed to submit PySpark job: {str(e)}")
     except Exception as e:
         logger.error(f"Unexpected error submitting job: {str(e)}")
         logger.error(traceback.format_exc())
-        return None
+        raise Exception(f"Unexpected error submitting PySpark job: {str(e)}")
 
     time.sleep(1)
     status_url = f'http://spark-master:7078/v1/submissions/status/{submission_id}'
@@ -77,7 +77,7 @@ def trigger_pyspark(file_path: str, args: str = None) -> Optional[str]:
                 logger.error(f"Job failed during execution. Driver state: {driver_state}")
                 if 'message' in status_data:
                     logger.error(f"Error message: {status_data['message']}")
-                return None
+                raise Exception(f"PySpark job failed. Driver state: {driver_state}")
                 
             elif driver_state in ["RUNNING", "SUBMITTED"]:
                 logger.debug(f"Job still running in state: {driver_state}")
@@ -89,12 +89,12 @@ def trigger_pyspark(file_path: str, args: str = None) -> Optional[str]:
                 
             else:
                 logger.error(f"Unknown driver state: {driver_state}, full response: {status_data}")
-                return None
+                raise Exception(f"PySpark job failed with unknown driver state: {driver_state}")
                 
         except requests.exceptions.RequestException as e:
             logger.error(f"Error checking job status: {str(e)}")
-            return None
+            raise Exception(f"Failed to check PySpark job status: {str(e)}")
         except Exception as e:
             logger.error(f"Unexpected error monitoring job: {str(e)}")
             logger.error(traceback.format_exc())
-            return None
+            raise Exception(f"Unexpected error while monitoring PySpark job: {str(e)}")
