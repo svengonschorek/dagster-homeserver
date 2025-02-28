@@ -91,4 +91,5 @@ services:
 
 networks:
   homeserver_network:
+    external: true
     name: homeserver_network
