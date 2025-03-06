@@ -1,4 +1,5 @@
 import os
+import dagster as dg
 from dagster import Definitions
 
 from .assets import dwh_dbt_assets, airbyte_assets, spark_assets
@@ -14,5 +15,6 @@ defs = Definitions(
     resources = {
         "dbt": dbt_resource
     },
-    schedules = schedules
+    schedules = schedules,
+    executor=dg.multiprocess_executor.configured({"max_concurrent": 1})
 )
