@@ -24,11 +24,8 @@ services:
         source: ./dags/definitions
         target: /opt/dagster/app/definitions
       - type: bind
-        source: ../dbt-homeserver
-        target: /opt/dagster/app/definitions/dbt-homeserver
-      - type: bind
-        source: ./config/profiles.yml
-        target: /opt/dagster/app/definitions/dbt-homeserver/profiles.yml
+        source: ../dbt-trino-homeserver
+        target: /opt/dagster/app/definitions/dbt-trino-homeserver
     env_file : ./config/.env
     image: docker_jobrunner_image
     restart: always

@@ -9,6 +9,7 @@ RUN pip install \
     dagster-docker \
     dagster-airbyte \
     dbt-clickhouse \
+    dbt-trino \
     dagster-dbt
 
 # Add repository code
