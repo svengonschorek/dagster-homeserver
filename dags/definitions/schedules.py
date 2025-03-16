@@ -10,6 +10,6 @@ schedules = [
             "all_assets",
             selection = "*"
         ),
-        cron_schedule = "@daily"
+        cron_schedule = "0 1 * * *"
     )
 ]
