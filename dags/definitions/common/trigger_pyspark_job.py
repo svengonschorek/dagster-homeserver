@@ -6,19 +6,20 @@ from dagster import get_dagster_logger
 
 # trigger extract_load.py in spark cluster
 # -------------------------------------------------------
-def trigger_pyspark(file_path: str, args: str = None) -> Optional[str]:
+def trigger_pyspark(file_path: str, src_name: str = None, load_type: str = None) -> Optional[str]:
     """
     Submit a PySpark job to a Spark cluster and monitor its execution.
     
     Args:
         file_path: Path to the Python script to execute
-        args: Arguments to pass to the script
+        src_name: Name of the source
+        load_type: Loading type [full, incremental]
         
     Returns:
         Optional[str]: Submission ID if successful, None if failed
     """
     logger = get_dagster_logger()
-    logger.info(f"Triggering PySpark job with file: {file_path}, args: {args}")
+    logger.info(f"Triggering PySpark job with file: {file_path}, src_name: {src_name}, load_type: {load_type}")
     
     url = "http://spark-master:7078/v1/submissions/create"
     headers = {'Content-Type': 'application/json', 'charset': 'UTF-8'}
@@ -26,13 +27,13 @@ def trigger_pyspark(file_path: str, args: str = None) -> Optional[str]:
         "appResource": "",
         "sparkProperties": {
             "spark.master": "spark://spark-master:7077",
-            "spark.app.name": "Spark Job " + (args if args else "")
+            "spark.app.name": "Spark Job " + (src_name if src_name else "")
         },
         "clientSparkVersion": "",
         "mainClass": "org.apache.spark.deploy.SparkSubmit",
         "environmentVariables": { },
         "action": "CreateSubmissionRequest",
-        "appArgs": [ file_path, args ]
+        "appArgs": [ file_path, src_name, load_type ]
     }
 
     try:
@@ -40,7 +41,7 @@ def trigger_pyspark(file_path: str, args: str = None) -> Optional[str]:
         response = requests.post(url, data=json.dumps(data), headers=headers, timeout=10)
         response.raise_for_status()
         
-        logger.info(f"Spark job submitted successfully! --> {args}")
+        logger.info(f"Spark job submitted successfully! --> {src_name}")
         submission_id = response.json().get('submissionId')
         
         if not submission_id:
@@ -84,7 +85,7 @@ def trigger_pyspark(file_path: str, args: str = None) -> Optional[str]:
                 time.sleep(1)
                 
             elif driver_state == "FINISHED":
-                logger.info(f"Spark job finished successfully! --> {args}")
+                logger.info(f"Spark job finished successfully! --> {src_name}")
                 return submission_id
                 
             else:
