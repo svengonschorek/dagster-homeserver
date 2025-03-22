@@ -12,7 +12,7 @@ from .constants import dbt_manifest_path, airbyte_resource
 # ---------------------------------
 def create_spark_assets(asset_names):
     assets = []
-    def make_asset(name):
+    def make_asset(name, load_type):
 
         @asset(
             name=name,
@@ -22,24 +22,25 @@ def create_spark_assets(asset_names):
         )
         def generated_asset():
             spark_file_path = "/opt/spark/scripts/extract_load.py"
-            trigger_pyspark(spark_file_path, args=name)
+            trigger_pyspark(spark_file_path, src_name=name, load_type=load_type)
         
         return generated_asset
 
-    for name in asset_names:
-        assets.append(make_asset(name))
+    for asset_name in asset_names:
+        assets.append(make_asset(asset_name["name"], asset_name["load_type"]))
     
     return assets
 
 asset_names = [
-    "s3_binance_orders_spot",
-    "s3_binance_payins",
-    "s3_binance_trades_futures",
-    "s3_binance_trades_spot",
-    "s3_binance_transactions_futures",
-    "s3_binance_transactions_spot",
-    "s3_bybit_botdetails",
-    "s3_bybit_bottrades"
+    {"name": "s3_binance_klines", "load_type": "incremental"},
+    {"name": "s3_binance_orders_spot", "load_type": "full"},
+    {"name": "s3_binance_payins", "load_type": "full"},
+    {"name": "s3_binance_trades_futures", "load_type": "full"},
+    {"name": "s3_binance_trades_spot", "load_type": "full"},
+    {"name": "s3_binance_transactions_futures", "load_type": "full"},
+    {"name": "s3_binance_transactions_spot", "load_type": "full"},
+    {"name": "s3_bybit_botdetails", "load_type": "full"},
+    {"name": "s3_bybit_bottrades", "load_type": "full"}
 ]
 
 spark_assets = create_spark_assets(asset_names)
